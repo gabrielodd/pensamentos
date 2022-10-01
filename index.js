@@ -9,12 +9,12 @@ const app = express();
 const conn = require("./db/conn");
 
 // Models
-const Tought = require("./models/Tought");
+//const Tought = require("./models/Tought");
 
 // routes
-const toughtsRoutes = require("./routes/toughtsRoutes");
-const authRoutes = require("./routes/authRoutes");
-const ToughController = require("./controllers/ToughtController");
+//const toughtsRoutes = require("./routes/toughtsRoutes");
+//const authRoutes = require("./routes/authRoutes");
+//const ToughController = require("./controllers/ToughtController");
 
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
@@ -27,9 +27,40 @@ app.use(
 
 app.use(express.json());
 
+//session middleware
+app.use(
+  session({
+    name: 'session',
+    secret: 'nosso_secret',
+    resave: false,
+    saveUninitialized: false,
+    store: new FileStore({
+      logFn: function () {},
+      path: require('path').join(require('os').tmpdir(), 'sessions'),
+    }),
+    cookie: {
+      secure: false,
+      maxAge: 3600000,
+      expires: new Date(Date.now() + 3600000),
+      httpOnly: true,
+    },
+  }),
+)
+
 app.use(flash());
 
 app.use(express.static("public"));
+
+app.use((req, res, next) => {
+  // console.log(req.session)
+  console.log(req.session.userid);
+
+  if (req.session.userid) {
+    res.locals.session = req.session;
+  }
+
+  next();
+});
 
 //app.use("/toughts", toughtsRoutes);
 //app.use("/", authRoutes);
