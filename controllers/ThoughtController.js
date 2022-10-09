@@ -1,9 +1,54 @@
-const Tought = require('../models/Tought')
+const Thought = require('../models/Tought')
 const User = require('../models/User')
 
 //const { Op } = require('sequelize')
 
 module.exports = class ThoughtController {
+  static async dashboard(req, res) {
+    const userId = req.session.userid
+
+    const user = await User.findOne({
+      where: {
+        id: userId,
+      },
+      include: Thought,
+      plain: true,
+    })
+
+    //const thoughts = user.toughts.map((result) => result.dataValues)
+
+    let emptyThoughts = true
+
+    //if (thoughts.length > 0) {
+    //  emptyThoughts = false
+    //}
+
+    //console.log(thoughts)
+    console.log(emptyThoughts)
+
+    res.render('thoughts/dashboard', { emptyThoughts })
+  }
+
+  static createThought(req, res) {
+    res.render('thoughts/create')
+  }
+
+  static createThoughtSave(req, res) {
+    const thought = {
+      title: req.body.title,
+      UserId: req.session.userid,
+    }
+
+    Thought.create(thought)
+      .then(() => {
+        req.flash('message', 'Pensamento criado com sucesso!')
+        req.session.save(() => {
+          res.redirect('/thoughts/dashboard')
+        })
+      })
+      .catch((err) => console.log())
+  }
+
   static async showThoughts(req, res) {
     res.render('thoughts/home')
   }
