@@ -52,4 +52,17 @@ module.exports = class ThoughtController {
   static async showThoughts(req, res) {
     res.render('thoughts/home')
   }
+
+  static removeThought(req, res) {
+    const id = req.body.id
+
+    Thought.destroy({ where: { id: id } })
+      .then(() => {
+        req.flash('message', 'Pensamento removido com sucesso!')
+        req.session.save(() => {
+          res.redirect('/thoughts/dashboard')
+        })
+      })
+      .catch((err) => console.log())
+  }
 }
