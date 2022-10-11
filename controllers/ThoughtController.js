@@ -65,4 +65,32 @@ module.exports = class ThoughtController {
       })
       .catch((err) => console.log())
   }
+
+  static updateThought(req, res) {
+    const id = req.params.id
+
+    Thought.findOne({ where: { id: id }, raw: true })
+      .then((thought) => {
+        res.render('thoughts/edit', { thought })
+      })
+      .catch((err) => console.log())
+  }
+
+  static updateThoughtPost(req, res) {
+    const id = req.body.id
+
+    const thought = {
+      title: req.body.title,
+      description: req.body.description,
+    }
+
+    Thought.update(thought, { where: { id: id } })
+      .then(() => {
+        req.flash('message', 'Pensamento atualizado com sucesso!')
+        req.session.save(() => {
+          res.redirect('/thoughts/dashboard')
+        })
+      })
+      .catch((err) => console.log())
+  }
 }
