@@ -50,7 +50,12 @@ module.exports = class ThoughtController {
   }
 
   static async showThoughts(req, res) {
-    res.render('thoughts/home')
+    const thoughtsData = Thought.findAll({
+      include: User,
+    })
+
+    const thoughts = thoughtsData.map((result) => result.get({ plain: true }))
+    res.render('thoughts/home', {thoughts})
   }
 
   static removeThought(req, res) {
