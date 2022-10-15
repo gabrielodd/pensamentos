@@ -74,7 +74,8 @@ module.exports = class ThoughtController {
         title: {
           [Op.like]: `%${search}%`
         }
-      }
+      },
+      order: [['createdAt', order]]
     })
 
     const thoughts = thoughtsData.map((result) => result.get({ plain: true }))
