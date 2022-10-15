@@ -1,7 +1,7 @@
 const Thought = require('../models/Tought')
 const User = require('../models/User')
 
-//const { Op } = require('sequelize')
+const { Op } = require('sequelize')
 
 module.exports = class ThoughtController {
   static async dashboard(req, res) {
@@ -50,12 +50,42 @@ module.exports = class ThoughtController {
   }
 
   static async showThoughts(req, res) {
-    const thoughtsData = Thought.findAll({
+    console.log(req.query)
+
+    // check if user is searching
+    let search = ''
+
+    if (req.query.search) {
+      search = req.query.search
+    }
+
+    // order results, newest first
+    let order = 'DESC'
+
+    if (req.query.order === 'old') {
+      order = 'ASC'
+    } else {
+      order = 'DESC'
+    }
+
+    const thoughtsData = await Thought.findAll({
       include: User,
+      where: {
+        title: {
+          [Op.like]: `%${search}%`
+        }
+      }
     })
 
     const thoughts = thoughtsData.map((result) => result.get({ plain: true }))
-    res.render('thoughts/home', {thoughts})
+
+    let thoughtsQuantity = thoughts.length
+
+    if (thoughtsQuantity === 0) {
+      thoughtsQuantity = false
+    }
+
+    res.render('thoughts/home', {thoughts, search, thoughtsQuantity})
   }
 
   static removeThought(req, res) {
